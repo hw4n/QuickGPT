@@ -8,8 +8,4 @@ await (async () => {
 })();
 
 const gpt = new QuickGPT();
-
-console.log('------------');
-
-// You can handle as promise too
-await gpt.ELI5('limit of 1/x as x approaches infinity').then(console.log);
+await gpt.ELI5('What is limit of a function?').then(console.log);
