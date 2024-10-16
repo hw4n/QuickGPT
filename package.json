@@ -1,6 +1,6 @@
 {
     "name": "quickgpt",
-    "version": "1.0.0",
+    "version": "0.0.3",
     "description": "An incredibly easy-to-use wrapper for the OpenAI API",
     "module": "./build/index.js",
     "types": "./build/index.d.ts",
@@ -9,15 +9,25 @@
         "start:dev": "npm run build && cross-env NODE_ENV=development node build/test.js",
         "build": "tsc"
     },
+    "keywords": [
+        "openai",
+        "gpt",
+        "chatgpt",
+        "ai",
+        "wrapper"
+    ],
+    "repository": {
+        "url": "https://github.com/hw4n/quickgpt"
+    },
     "author": "Hwanhee Chae",
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^22.7.5",
         "cross-env": "^7.0.3",
+        "dotenv": "^16.4.5",
         "typescript": "^5.6.3"
     },
     "dependencies": {
-        "dotenv": "^16.4.5",
         "openai": "^4.67.3"
     }
 }

@@ -2,8 +2,14 @@
 
 node_modules
 
+src
+
 .env
 
 .gitignore
 
 .prettierrc
+
+tsconfig.json
+
+build/test*
