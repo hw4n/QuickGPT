@@ -10,10 +10,6 @@ It also features unique functions such as **JustAnswer**, **ELI5**, **TrueOrFals
 
 In short, QuickGPT streamlines OpenAI API usage, giving you both power and simplicity, so you can focus on getting the answers you need.
 
-## Easy Contribution
-
-If you have ideas for new features, feel free to contribute! The project is designed so anyone can easily add functionality through merge requests.
-
 ## Installation
 
 Install QuickGPT via npm:
@@ -98,3 +94,34 @@ gpt.setFormat(true);
 await gpt.JustAnswer('limit of 1/x as x approaches infinity').then(console.log);
 // // -> As \( x \) gets really, really big, like infinity, \(\frac{1}{x}\) gets really, really small, like zero. So, the limit of \(\frac{1}{x}\) as \( x \) goes to infinity is 0.
 ```
+
+## Easy Contribution
+
+If you have ideas for new features, feel free to contribute! The project is designed so anyone can easily add functionality through merge requests.
+
+### Developing the library
+
+To make changes to the library, please follow these steps:
+
+1. **Clone the Repository**  
+   Start by cloning the repository to your local machine using the following command:
+
+    ```bash
+    git clone https://github.com/hw4n/quickgpt
+    ```
+
+2. **Install Dependencies**  
+   Navigate to the cloned directory and ensure you have all the necessary dependencies and development dependencies installed by running the following command:
+
+    ```bash
+    npm install
+    ```
+
+3. **Development Build and Testing**  
+   During development, you can use the following command to watch for changes and rebuild automatically:
+
+    ```bash
+     npm run start:dev
+    ```
+
+    This command will build the project and execute the `src/test.ts` file. After building, the corresponding JavaScript file `(build/test.js)` will be generated and executed. This is useful for testing the changes you've made to the library.
