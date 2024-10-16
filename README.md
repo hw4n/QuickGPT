@@ -93,6 +93,9 @@ gpt.setFormat(true);
 
 await gpt.JustAnswer('limit of 1/x as x approaches infinity').then(console.log);
 // // -> As \( x \) gets really, really big, like infinity, \(\frac{1}{x}\) gets really, really small, like zero. So, the limit of \(\frac{1}{x}\) as \( x \) goes to infinity is 0.
+
+// finally, if you want to directly use the official OpenAI API
+const openai = gpt.openai;
 ```
 
 ## Easy Contribution

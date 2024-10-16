@@ -1,9 +1,10 @@
 {
     "name": "quickgpt",
-    "version": "0.0.3",
+    "version": "0.0.6",
     "description": "An incredibly easy-to-use wrapper for the OpenAI API",
-    "module": "./build/index.js",
-    "types": "./build/index.d.ts",
+    "main": "index.js",
+    "module": "index.js",
+    "types": "index.d.ts",
     "type": "module",
     "scripts": {
         "start:dev": "npm run build && cross-env NODE_ENV=development node build/test.js",
