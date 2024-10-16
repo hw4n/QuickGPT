@@ -2,7 +2,7 @@ import OpenAI, { ClientOptions } from 'openai';
 
 export default class QuickGPT {
     /**
-     * The OpenAI client instance.
+     * The OpenAI client instance used internally by QuickGPT.
      *
      * @type {OpenAI}
      * @public
@@ -34,7 +34,7 @@ export default class QuickGPT {
     public max_tokens: number = 1000;
 
     /**
-     * Creates an instance of QuickGPT.
+     * Creates an instance of QuickGPT. set environmental variable OPENAI_API_KEY, or pass it to the constructor like { apiKey: 'your-api-key' }.
      *
      * @param {ClientOptions} clientOptions
      * @throws {Error}
@@ -128,7 +128,7 @@ export default class QuickGPT {
     }
 
     /**
-     * Creates a completion body for the OpenAI API.
+     * Creates a completion body with current settings and the user's prompt.
      *
      * @param {string} prompt
      * @returns {ChatCompletionCreateParamsNonStreaming}
@@ -199,7 +199,7 @@ export default class QuickGPT {
     }
 
     /**
-     * Explain Like I'm 5.
+     * Explain the user's prompt so that a 5-year-old can understand it.
      *
      * @param {string} prompt
      * @returns {Promise<string>}
@@ -243,7 +243,7 @@ export default class QuickGPT {
     }
 
     /**
-     * Answer the user's prompt with True or False.
+     * Answer the user's prompt with boolean value True or False.
      *
      * @param {string} prompt
      * @returns {Promise<boolean>}

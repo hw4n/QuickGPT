@@ -1,6 +1,6 @@
 {
     "name": "quickgpt",
-    "version": "0.0.6",
+    "version": "0.0.10",
     "description": "An incredibly easy-to-use wrapper for the OpenAI API",
     "main": "index.js",
     "module": "index.js",
