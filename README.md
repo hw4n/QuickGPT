@@ -121,10 +121,18 @@ To make changes to the library, please follow these steps:
     ```
 
 3. **Development Build and Testing**  
-   During development, you can use the following command to watch for changes and rebuild automatically:
+   During development, you can use the following command to rebuild and test automatically:
 
     ```bash
      npm run start:dev
     ```
 
-    This command will build the project and execute the `src/test.ts` file. After building, the corresponding JavaScript file `(build/test.js)` will be generated and executed. This is useful for testing the changes you've made to the library.
+    This command will execute the `dev.js` file with the environmental variable `NODE_ENV` set to `development`, which is useful for testing the changes you've made to the library.
+
+    Additionally, you can simplify development by adding your `OPENAI_API_KEY` to the `.env` file, allowing the library to access the OpenAI API without hardcoding your key in the code.
+
+    ```bash
+    (.env)
+
+    OPENAI_API_KEY=your-api-key
+    ```
