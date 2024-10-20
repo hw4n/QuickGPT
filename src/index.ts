@@ -1,4 +1,8 @@
 import OpenAI, { ClientOptions } from 'openai';
+import {
+    ChatCompletionCreateParamsNonStreaming,
+    ChatCompletionMessageParam,
+} from 'openai/resources';
 
 export default class QuickGPT {
     /**
@@ -87,15 +91,16 @@ export default class QuickGPT {
     /**
      * Creates a system prompt based on the mode and the private property 'format'.
      *
-     * @param {string} mode
      * @returns {string}
      */
-    createSystemPrompt(mode: string): string {
+    createSystemPrompt(): string {
         let systemPrompt = `You are designed to provide one-time responses. Always give a clear conclusion and avoid answering with questions.`;
 
         if (!this.format) {
             systemPrompt += `Do not use any formatting such as LaTeX, Markdown, or HTML. `;
         }
+
+        const mode = this.getCallerFunctionName('requestGPT')?.toLowerCase();
 
         // keep the string uncapitalized
         switch (mode) {
@@ -135,21 +140,41 @@ export default class QuickGPT {
      */
     createCompletionBody(
         prompt: string,
-        mode: string,
-    ): OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming {
+        image_url?: string,
+    ): ChatCompletionCreateParamsNonStreaming {
+        const messages = [
+            {
+                role: 'system',
+                content: this.createSystemPrompt(),
+            },
+            {
+                role: 'user',
+                content: [
+                    {
+                        type: 'text',
+                        text: prompt,
+                    },
+                ] as {
+                    type: string;
+                    text?: string;
+                    image_url?: { url: string };
+                }[],
+            },
+        ];
+
+        if (image_url && Array.isArray(messages[1].content)) {
+            messages[1].content.push({
+                type: 'image_url',
+                image_url: {
+                    url: image_url,
+                },
+            });
+        }
+
         return {
             model: this.model,
             max_tokens: this.max_tokens,
-            messages: [
-                {
-                    role: 'system',
-                    content: this.createSystemPrompt(mode),
-                },
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
+            messages: messages as ChatCompletionMessageParam[],
         };
     }
 
@@ -157,12 +182,12 @@ export default class QuickGPT {
      * Requests a completion from the OpenAI API.
      *
      * @param {string} prompt
-     * @param {string} mode
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @throws {Error}
      */
-    async requestGPT(prompt: string, mode: string): Promise<string> {
-        const completionBody = this.createCompletionBody(prompt, mode);
+    async requestGPT(prompt: string, image_url?: string): Promise<string> {
+        const completionBody = this.createCompletionBody(prompt, image_url);
         try {
             const chatCompletion = await this.openai.chat.completions.create(
                 completionBody,
@@ -177,80 +202,106 @@ export default class QuickGPT {
     }
 
     /**
+     * Retrieve the caller function of the callee function.
+     *
+     * @param {string} callee
+     * @returns {string | undefined}
+     */
+    getCallerFunctionName(callee: string) {
+        const stack = new Error().stack;
+        if (stack) {
+            const lines = stack.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes(callee)) {
+                    return lines[i + 1].trim().split(' ')[1].split('.')[1];
+                }
+            }
+        }
+        return;
+    }
+
+    /**
      * Ask a question and get a response.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Ask(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'ask');
+    async Ask(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Ask a question and just get an answer without any additional explanation.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async JustAnswer(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'justanswer');
+    async JustAnswer(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Explain the user's prompt so that a 5-year-old can understand it.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async ELI5(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'eli5');
+    async ELI5(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Explain the user's prompt.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Explain(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'explain');
+    async Explain(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Summarize the user's prompt.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Summarize(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'summarize');
+    async Summarize(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Evaluate the user's prompt.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Evaluate(prompt: string): Promise<string> {
-        return this.requestGPT(prompt, 'evaluate');
+    async Evaluate(prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(prompt, image_url);
     }
 
     /**
      * Answer the user's prompt with boolean value True or False.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<boolean>}
      * @public
      */
-    async TrueOrFalse(prompt: string): Promise<boolean> {
-        const response = await this.requestGPT(prompt, 'trueorfalse');
+    async TrueOrFalse(prompt: string, image_url?: string): Promise<boolean> {
+        const response = await this.requestGPT(prompt, image_url);
         return true ? response.toLowerCase().includes('true') : false;
     }
 
@@ -258,10 +309,11 @@ export default class QuickGPT {
      * Answer the user's prompt with Yes or No, utilizing the TrueOrFalse method.
      *
      * @param {string} prompt
+     * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async YesOrNo(prompt: string): Promise<string> {
-        return (await this.TrueOrFalse(prompt)) ? 'Yes' : 'No';
+    async YesOrNo(prompt: string, image_url?: string): Promise<string> {
+        return (await this.TrueOrFalse(prompt, image_url)) ? 'Yes' : 'No';
     }
 }
