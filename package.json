@@ -1,6 +1,6 @@
 {
     "name": "quickgpt",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "An incredibly easy-to-use wrapper for the OpenAI API",
     "main": "index.js",
     "module": "index.js",
@@ -18,7 +18,7 @@
         "wrapper"
     ],
     "repository": {
-        "url": "https://github.com/hw4n/quickgpt"
+        "url": "git+https://github.com/hw4n/quickgpt.git"
     },
     "author": "Hwanhee Chae",
     "license": "MIT",
