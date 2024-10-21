@@ -82,23 +82,33 @@ console.log(response);
 // -> As x gets bigger and bigger, 1 divided by x gets smaller and smaller. So, the limit of 1/x as x approaches infinity is 0.
 
 // You can handle as a promise too
-await gpt.Explain('limit of 1/x as x approaches infinity').then(console.log);
+gpt.Explain('limit of 1/x as x approaches infinity').then(console.log);
 // -> The limit of 1/x as x approaches infinity is 0. As the value of x becomes larger and larger, the value of 1/x becomes smaller and closer to 0. This is because you are dividing 1 by an increasingly large number, which reduces the overall value towards zero.
 
-await gpt.ELI5('limit of 1/x as x approaches infinity').then(console.log);
+gpt.ELI5('limit of 1/x as x approaches infinity').then(console.log);
 // -> As x gets bigger and bigger, like when you count up to really large numbers, the fraction 1/x becomes a smaller and smaller piece because you're dividing 1 by a bigger number each time. It's like if you have one cookie and you share it with more and more friends, each friend gets a tinier and tinier piece. So, as x goes to infinity, 1/x gets closer and closer to 0. That's the limit!
 
 // You can pass an image URL as the second parameter
 const imageURL =
     'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006_%28square%29.jpg/187px-Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006_%28square%29.jpg';
-await gpt.ELI5('what is this image?', imageURL).then(console.log);
+gpt.ELI5('what is this image?', imageURL).then(console.log);
 // -> This is an image of Mount Everest, the highest mountain in the world, located in the Himalayas on the border between Nepal and Tibet.
 
 // from now on, lets enable formats like latex, markdown, html
 gpt.setFormat(true);
 
-await gpt.JustAnswer('limit of 1/x as x approaches infinity').then(console.log);
+gpt.JustAnswer('limit of 1/x as x approaches infinity').then(console.log);
 // -> As \( x \) gets really, really big, like infinity, \(\frac{1}{x}\) gets really, really small, like zero. So, the limit of \(\frac{1}{x}\) as \( x \) goes to infinity is 0.
+
+// You can create custom completion function, pass the system prompt to createCustomCompletion.
+const askHeadhunter = gpt.createCustomCompletion(
+    'You are a headhunter for a tech company.',
+);
+const headhunterJobDescription = await askHeadhunter(
+    'What is your job? Say in a sentence.',
+);
+console.log(headhunterJobDescription);
+// -> I identify and recruit talented professionals for a tech company to meet its hiring needs.
 
 // finally, if you want to directly use the official OpenAI API
 const openai = gpt.openai;

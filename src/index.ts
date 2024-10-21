@@ -135,24 +135,27 @@ export default class QuickGPT {
     /**
      * Creates a completion body with current settings and the user's prompt.
      *
-     * @param {string} prompt
+     * @param {object} options { user_prompt: string, system_prompt?: string, image_url?: string }
      * @returns {ChatCompletionCreateParamsNonStreaming}
      */
-    createCompletionBody(
-        prompt: string,
-        image_url?: string,
-    ): ChatCompletionCreateParamsNonStreaming {
+    createCompletionBody(options: {
+        user_prompt: string;
+        system_prompt?: string;
+        image_url?: string;
+    }): ChatCompletionCreateParamsNonStreaming {
         const messages = [
             {
                 role: 'system',
-                content: this.createSystemPrompt(),
+                content: options.system_prompt
+                    ? options.system_prompt
+                    : this.createSystemPrompt(),
             },
             {
                 role: 'user',
                 content: [
                     {
                         type: 'text',
-                        text: prompt,
+                        text: options.user_prompt,
                     },
                 ] as {
                     type: string;
@@ -162,11 +165,11 @@ export default class QuickGPT {
             },
         ];
 
-        if (image_url && Array.isArray(messages[1].content)) {
+        if (options.image_url && Array.isArray(messages[1].content)) {
             messages[1].content.push({
                 type: 'image_url',
                 image_url: {
-                    url: image_url,
+                    url: options.image_url,
                 },
             });
         }
@@ -181,13 +184,13 @@ export default class QuickGPT {
     /**
      * Requests a completion from the OpenAI API.
      *
-     * @param {string} prompt
-     * @param {string} image_url (optional)
+     * @param {ChatCompletionCreateParamsNonStreaming} completionBody
      * @returns {Promise<string>}
      * @throws {Error}
      */
-    async requestGPT(prompt: string, image_url?: string): Promise<string> {
-        const completionBody = this.createCompletionBody(prompt, image_url);
+    async requestGPT(
+        completionBody: ChatCompletionCreateParamsNonStreaming,
+    ): Promise<string> {
         try {
             const chatCompletion = await this.openai.chat.completions.create(
                 completionBody,
@@ -223,97 +226,137 @@ export default class QuickGPT {
     /**
      * Ask a question and get a response.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Ask(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async Ask(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Ask a question and just get an answer without any additional explanation.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async JustAnswer(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async JustAnswer(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Explain the user's prompt so that a 5-year-old can understand it.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async ELI5(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async ELI5(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Explain the user's prompt.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Explain(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async Explain(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Summarize the user's prompt.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Summarize(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async Summarize(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Evaluate the user's prompt.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async Evaluate(prompt: string, image_url?: string): Promise<string> {
-        return this.requestGPT(prompt, image_url);
+    async Evaluate(user_prompt: string, image_url?: string): Promise<string> {
+        return this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
     }
 
     /**
      * Answer the user's prompt with boolean value True or False.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<boolean>}
      * @public
      */
-    async TrueOrFalse(prompt: string, image_url?: string): Promise<boolean> {
-        const response = await this.requestGPT(prompt, image_url);
+    async TrueOrFalse(
+        user_prompt: string,
+        image_url?: string,
+    ): Promise<boolean> {
+        const response = await this.requestGPT(
+            this.createCompletionBody({ user_prompt, image_url }),
+        );
         return true ? response.toLowerCase().includes('true') : false;
     }
 
     /**
      * Answer the user's prompt with Yes or No, utilizing the TrueOrFalse method.
      *
-     * @param {string} prompt
+     * @param {string} user_prompt
      * @param {string} image_url (optional)
      * @returns {Promise<string>}
      * @public
      */
-    async YesOrNo(prompt: string, image_url?: string): Promise<string> {
-        return (await this.TrueOrFalse(prompt, image_url)) ? 'Yes' : 'No';
+    async YesOrNo(user_prompt: string, image_url?: string): Promise<string> {
+        return (await this.TrueOrFalse(user_prompt, image_url)) ? 'Yes' : 'No';
+    }
+
+    /**
+     * Create a custom completion method with a custom system prompt.
+     *
+     * @param {string} system_prompt
+     * @returns {Function}
+     * @public
+     */
+    createCustomCompletion(system_prompt: string) {
+        return async function (
+            this: QuickGPT,
+            user_prompt: string,
+            image_url?: string,
+        ): Promise<string> {
+            return await this.requestGPT(
+                this.createCompletionBody({
+                    user_prompt,
+                    system_prompt,
+                    image_url,
+                }),
+            );
+        }.bind(this);
     }
 }
