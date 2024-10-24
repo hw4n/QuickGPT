@@ -1,14 +1,18 @@
 {
     "name": "quickgpt",
-    "version": "0.2.1",
+    "version": "0.2.4",
     "description": "An incredibly easy-to-use wrapper for the OpenAI API",
-    "main": "index.js",
-    "module": "index.js",
-    "types": "index.d.ts",
-    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "type": "commonjs",
+    "exports": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.js"
+    },
     "scripts": {
         "start:dev": "npm run build && cross-env NODE_ENV=development node dev.js",
-        "build": "tsc"
+        "build": "tsup"
     },
     "keywords": [
         "openai",
@@ -26,6 +30,7 @@
         "@types/node": "^22.7.5",
         "cross-env": "^7.0.3",
         "dotenv": "^16.4.5",
+        "tsup": "^8.3.0",
         "typescript": "^5.6.3"
     },
     "dependencies": {

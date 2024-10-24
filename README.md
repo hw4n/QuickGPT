@@ -36,6 +36,8 @@ Or pass the API key directly when initializing QuickGPT.
 
 ```js
 import QuickGPT from 'quickgpt';
+// or if you need to use require
+const QuickGPT = require('quickgpt').default;
 
 const gpt = new QuickGPT({ apiKey: 'your-api-key' });
 ```

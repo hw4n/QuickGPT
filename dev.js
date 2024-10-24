@@ -1,11 +1,11 @@
-import QuickGPT from './index.js';
+const QuickGPT = require('./dist/index').default;
 
-await (async () => {
+(async () => {
     if (process.env.NODE_ENV === 'development') {
         const dotenv = await import('dotenv');
         dotenv.config();
     }
-})();
-
-const gpt = new QuickGPT();
-await gpt.ELI5('What is limit of a function?').then(console.log);
+})().then(() => {
+    const gpt = new QuickGPT();
+    gpt.ELI5('What is limit of a function?').then(console.log);
+});
