@@ -70,6 +70,8 @@ setMaxToken(token: number): void;
 ```javascript
 // Import the QuickGPT class
 import QuickGPT from 'quickgpt';
+// or if you need to use require
+const QuickGPT = require('quickgpt').default;
 
 // If you've already set the OPENAI_API_KEY as an environment variable:
 const gpt = new QuickGPT();
