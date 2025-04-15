@@ -135,7 +135,7 @@ export default class QuickGPT {
                 break;
         }
 
-        systemPrompt += `Respond in the language of the user's prompt, or as specified by the user: `;
+        systemPrompt += `Do not respond unless the answer is certain. In such cases, search the web first. Respond in the language of the user's prompt, or as specified by the user: `;
 
         return systemPrompt;
     }
@@ -209,19 +209,30 @@ export default class QuickGPT {
             },
             {
                 role: 'user',
-                content: options.user_prompt,
+                content: [
+                    {
+                        type: 'input_text',
+                        text: options.user_prompt,
+                    },
+                    {
+                        type: 'input_image',
+                        image_url: options.image_url,
+                    },
+                ],
             },
         ];
-        if (options.image_url) {
-            messages.push({
-                role: 'user',
-                content: options.image_url,
-            });
+        if (!options.image_url && Array.isArray(messages[1].content)) {
+            messages[1].content.pop();
         }
         return {
             model: this.model,
             max_output_tokens: this.max_tokens,
             input: messages as ResponseInput,
+            tools: [
+                {
+                    type: 'web_search_preview',
+                },
+            ],
         };
     }
 
@@ -256,11 +267,6 @@ export default class QuickGPT {
             const chatCompletion = this.openai.responses.create({
                 ...completionBody,
                 stream: true,
-                tools: [
-                    {
-                        type: 'web_search_preview',
-                    },
-                ],
             });
             let response = '';
             return chatCompletion.then(async (res) => {
@@ -441,6 +447,26 @@ export default class QuickGPT {
                     system_prompt,
                     image_url,
                 }),
+            );
+        }.bind(this);
+    }
+
+    createCustomResponse(system_prompt: string) {
+        return async function (
+            this: QuickGPT,
+            {
+                user_prompt,
+                image_url,
+            }: { user_prompt: string; image_url?: string },
+            callback?: (response: string) => Promise<void>,
+        ): Promise<string> {
+            return await this.requestGPTStreaming(
+                this.createResponseBodyStreaming({
+                    user_prompt,
+                    system_prompt,
+                    image_url,
+                }),
+                callback,
             );
         }.bind(this);
     }
