@@ -3,6 +3,12 @@ import {
     ChatCompletionCreateParamsNonStreaming,
     ChatCompletionMessageParam,
 } from 'openai/resources';
+import { Message } from 'openai/resources/beta/threads/messages';
+import {
+    ResponseCreateParamsNonStreaming,
+    ResponseInput,
+    ResponseInputMessageItem,
+} from 'openai/resources/responses/responses';
 
 export default class QuickGPT {
     /**
@@ -59,11 +65,11 @@ export default class QuickGPT {
     /**
      * Sets the model to use for the response.
      *
-     * @param {string} model 'gpt-4' | 'gpt-4o' | 'gpt-4o-mini'
+     * @param {string} model 'gpt-4.1' | 'gpt-4o' | 'gpt-4o-mini' | 'o1'
      * @returns {void}
      * @public
      */
-    setModel(model: 'gpt-4' | 'gpt-4o' | 'gpt-4o-mini'): void {
+    setModel(model: 'gpt-4.1' | 'gpt-4o' | 'gpt-4o-mini' | 'o1'): void {
         this.model = model;
     }
 
@@ -100,7 +106,9 @@ export default class QuickGPT {
             systemPrompt += `Do not use any formatting such as LaTeX, Markdown, or HTML. `;
         }
 
-        const mode = this.getCallerFunctionName('requestGPT')?.toLowerCase();
+        const mode =
+            this.getCallerFunctionName('requestGPT')?.toLowerCase() ||
+            this.getCallerFunctionName('requestGPTStreaming')?.toLowerCase();
 
         // keep the string uncapitalized
         switch (mode) {
@@ -182,6 +190,42 @@ export default class QuickGPT {
     }
 
     /**
+     * Creates a completion body with current settings and the user's prompt for streaming.
+     *
+     * @param {object} options { user_prompt: string, system_prompt?: string, image_url?: string }
+     * @returns {ResponseCreateParamsNonStreaming}
+     */
+    createResponseBodyStreaming(options: {
+        user_prompt: string;
+        system_prompt?: string;
+        image_url?: string;
+    }): ResponseCreateParamsNonStreaming {
+        const messages = [
+            {
+                role: 'system',
+                content: options.system_prompt
+                    ? options.system_prompt
+                    : this.createSystemPrompt(),
+            },
+            {
+                role: 'user',
+                content: options.user_prompt,
+            },
+        ];
+        if (options.image_url) {
+            messages.push({
+                role: 'user',
+                content: options.image_url,
+            });
+        }
+        return {
+            model: this.model,
+            max_output_tokens: this.max_tokens,
+            input: messages as ResponseInput,
+        };
+    }
+
+    /**
      * Requests a completion from the OpenAI API.
      *
      * @param {ChatCompletionCreateParamsNonStreaming} completionBody
@@ -204,6 +248,32 @@ export default class QuickGPT {
         }
     }
 
+    async requestGPTStreaming(
+        completionBody: ResponseCreateParamsNonStreaming,
+        callback?: (response: string) => Promise<void>,
+    ): Promise<string> {
+        try {
+            const chatCompletion = this.openai.responses.create({
+                ...completionBody,
+                stream: true,
+            });
+            let response = '';
+            return chatCompletion.then(async (res) => {
+                for await (const chunk of res) {
+                    if (chunk.type === 'response.output_text.delta') {
+                        response += chunk.delta;
+                    }
+                    if (callback) {
+                        await callback(response);
+                    }
+                }
+                return response;
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     /**
      * Retrieve the caller function of the callee function.
      *
@@ -221,6 +291,16 @@ export default class QuickGPT {
             }
         }
         return;
+    }
+
+    async AskStreaming(
+        { user_prompt, image_url }: { user_prompt: string; image_url?: string },
+        callback?: (response: string) => Promise<void>,
+    ): Promise<string> {
+        return this.requestGPTStreaming(
+            this.createResponseBodyStreaming({ user_prompt, image_url }),
+            callback,
+        );
     }
 
     /**

@@ -7,5 +7,7 @@ const QuickGPT = require('./dist/index').default;
     }
 })().then(() => {
     const gpt = new QuickGPT();
-    gpt.ELI5('What is limit of a function?').then(console.log);
+    gpt.AskStreaming({ user_prompt: 'What is limit of a function?' }, (sp) => {
+        console.log(sp);
+    }).then(console.log);
 });
