@@ -184,7 +184,7 @@ export default class QuickGPT {
 
         return {
             model: this.model,
-            max_tokens: this.max_tokens,
+            max_completion_tokens: this.max_tokens,
             messages: messages as ChatCompletionMessageParam[],
         };
     }
@@ -256,6 +256,11 @@ export default class QuickGPT {
             const chatCompletion = this.openai.responses.create({
                 ...completionBody,
                 stream: true,
+                tools: [
+                    {
+                        type: 'web_search_preview',
+                    },
+                ],
             });
             let response = '';
             return chatCompletion.then(async (res) => {
